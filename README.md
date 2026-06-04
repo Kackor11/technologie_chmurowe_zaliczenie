@@ -1,0 +1,1 @@
+# technologie_chmurowe_zaliczenie
