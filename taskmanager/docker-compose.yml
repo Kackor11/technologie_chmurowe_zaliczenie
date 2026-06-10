@@ -11,11 +11,31 @@ services:
     networks:
       - web_net
     depends_on:
+      frontend:
+        condition: service_healthy
       backend:
         condition: service_healthy
 
   # ==========================================
-  # 2. Nasza Aplikacja w Javie (Backend)
+  # 2. Frontend (React SPA)
+  # ==========================================
+  frontend:
+    build: ./frontend
+    image: taskmanager-frontend:v1.0
+    networks:
+      - web_net
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "--spider", "http://127.0.0.1:80" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ==========================================
+  # 3. Backend
   # ==========================================
   backend:
     build: .
@@ -37,7 +57,8 @@ services:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 90s
     depends_on:
       db:
         condition: service_healthy
@@ -45,7 +66,7 @@ services:
         condition: service_healthy
 
   # ==========================================
-  # 3. Baza Danych (PostgreSQL)
+  # 4. Baza Danych (PostgreSQL)
   # ==========================================
   db:
     image: postgres:15-alpine
@@ -66,7 +87,7 @@ services:
       retries: 5
 
   # ==========================================
-  # 4. Cache (Redis)
+  # 5. Cache (Redis)
   # ==========================================
   cache:
     image: redis:alpine
