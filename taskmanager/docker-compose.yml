@@ -99,6 +99,52 @@ services:
       timeout: 5s
       retries: 5
 
+  # ==========================================
+  # 6. Serwer Autoryzacji (Zitadel)
+  # ==========================================
+  zitadel:
+    image: ghcr.io/zitadel/zitadel:v3.4.10
+    command: 'start-from-init --masterkey "12345678901234567890123456789012" --tlsMode disabled'
+    environment:
+      - ZITADEL_DATABASE_POSTGRES_HOST=zitadel-db
+      - ZITADEL_DATABASE_POSTGRES_PORT=5432
+      - ZITADEL_DATABASE_POSTGRES_DATABASE=zitadel
+      - ZITADEL_DATABASE_POSTGRES_USER_USERNAME=zitadel
+      - ZITADEL_DATABASE_POSTGRES_USER_PASSWORD=zitadel_app_password
+      - ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE=disable
+      - ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME=postgres
+      - ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD=postgres_admin_password
+      - ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable
+      - ZITADEL_EXTERNALDOMAIN=localhost
+      - ZITADEL_EXTERNALPORT=8081
+      - ZITADEL_EXTERNALSECURE="false"
+    ports:
+      - "8081:8080"
+    networks:
+      - web_net
+      - internal_net
+    depends_on:
+      zitadel-db:
+        condition: service_healthy
+
+  # ==========================================
+  # 7. Baza Danych dla Zitadel
+  # ==========================================
+  zitadel-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres_admin_password
+    volumes:
+      - zitadel_data:/var/lib/postgresql/data
+    networks:
+      - internal_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 # ==========================================
 # Konfiguracja Sieci, Wolumenów i Sekretów
 # ==========================================
@@ -108,6 +154,7 @@ networks:
 
 volumes:
   db_data:
+  zitadel_data:
 
 secrets:
   db_password:
