@@ -43,6 +43,7 @@ services:
     environment:
       - DB_HOST=db
       - REDIS_HOST=cache
+      - ZITADEL_HOST=zitadel
     secrets:
       - db_password
     networks:

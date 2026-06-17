@@ -3,6 +3,8 @@ package com.example.taskmanager.controller;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
@@ -16,19 +18,24 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        if(userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "User already exists"));
-        }
-        return ResponseEntity.ok(userRepository.save(user));
-    }
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+        String zitadelId = jwt.getSubject();
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
-        return userRepository.findByUsername(user.getUsername())
-                .filter(u -> u.getPassword().equals(user.getPassword()))
-                .map(u -> ResponseEntity.ok((Object) Map.of("id", u.getId(), "username", u.getUsername())))
-                .orElse(ResponseEntity.status(401).body(Map.of("error", "Invalid credentials")));
+        String tempUsername = jwt.getClaimAsString("preferred_username");
+        final String finalUsername = (tempUsername != null) ? tempUsername : jwt.getClaimAsString("email");
+
+        User user = userRepository.findByZitadelId(zitadelId).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setZitadelId(zitadelId);
+            newUser.setUsername(finalUsername != null ? finalUsername : "Unknown_User");
+            return userRepository.save(newUser);
+        });
+
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "zitadelId", user.getZitadelId(),
+                "username", user.getUsername()
+        ));
     }
 }
