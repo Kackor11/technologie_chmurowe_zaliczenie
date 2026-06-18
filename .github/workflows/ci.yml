@@ -2,8 +2,6 @@ name: Java CI/CD & Security Tests
 
 on:
   push:
-    branches: [ "main", "web-4" ]
-  pull_request:
     branches: [ "main" ]
 
 jobs:
@@ -22,7 +20,11 @@ jobs:
           cache: maven
 
       - name: Uruchomienie testów (MockMvc Security)
-        run: mvn -B test
+        run: |
+          cd taskmanager
+          mvn -B test
 
       - name: Weryfikacja budowania obrazu Docker (Backend)
-        run: docker build -t taskmanager-backend-test .
+        run: |
+          cd taskmanager
+          docker build -t taskmanager-backend-test .
