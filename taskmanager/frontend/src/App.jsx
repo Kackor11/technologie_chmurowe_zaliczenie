@@ -16,7 +16,6 @@ export default function App() {
     const getHeaders = () => {
         return {
             'Content-Type': 'application/json',
-            // auth.user?.access_token zawiera nasz token JWT z Zitadela
             'Authorization': auth.user ? `Bearer ${auth.user.access_token}` : ''
         };
     };
@@ -24,7 +23,6 @@ export default function App() {
     const fetchMeetings = async () => {
         if (!auth.isAuthenticated) return;
         try {
-            // Zmiana: strzelamy tylko do /api/meetings, backend sam wie, kim jesteśmy z JWT!
             const res = await fetch(`/api/meetings`, { headers: getHeaders() });
             if (!res.ok) throw new Error("Błąd pobierania spotkań");
             const data = await res.json();
@@ -108,7 +106,6 @@ export default function App() {
 
     console.log("Twój profil OIDC:", auth.user?.profile);
 
-    // Wydobycie nazwy użytkownika (Zitadel często ukrywa login w "preferred_username")
     let displayName = 'Użytkowniku';
     if (auth.user?.profile) {
         displayName = auth.user.profile.preferred_username
@@ -116,7 +113,6 @@ export default function App() {
             || auth.user.profile.email
             || 'Użytkowniku';
     }
-    // Funkcja demonstracyjna dla prowadzącego na obronę
     const testAdminRights = async () => {
         const res = await fetch('/api/tasks/all', { headers: getHeaders() });
         if (res.status === 403) {

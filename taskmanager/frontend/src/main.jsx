@@ -6,9 +6,9 @@ import { AuthProvider } from "react-oidc-context";
 const oidcConfig = {
     authority: "http://localhost:8081",
     client_id: "377891374571257861",
-    redirect_uri: "http://localhost/", // Musi być identyczne z tym w Zitadel
+    redirect_uri: "http://localhost/",
     post_logout_redirect_uri: "http://localhost/",
-    response_type: "code", // To wymusza standard PKCE
+    response_type: "code", // wymusza standard PKCE
     // Pobieramy openid, profil i wymuszamy dołączenie ról projektowych
     scope: "openid profile email urn:zitadel:iam:org:project:roles"
 };

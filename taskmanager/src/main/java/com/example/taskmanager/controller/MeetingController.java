@@ -28,7 +28,7 @@ public class MeetingController {
         String zitadelId = jwt.getSubject();
         return userRepository.findByZitadelId(zitadelId)
                 .map(user -> meetingRepository.findByUserId(user.getId()))
-                .orElse(List.of()); // Pusta lista, jeśli user wchodzi pierwszy raz
+                .orElse(List.of());
     }
 
     // Bezpieczne zapisywanie z wymuszeniem ID z JWT
