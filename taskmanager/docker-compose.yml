@@ -46,6 +46,8 @@ services:
       - ZITADEL_HOST=zitadel
     secrets:
       - db_password
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - web_net
       - internal_net
@@ -118,7 +120,11 @@ services:
       - ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable
       - ZITADEL_EXTERNALDOMAIN=localhost
       - ZITADEL_EXTERNALPORT=8081
-      - ZITADEL_EXTERNALSECURE="false"
+      - ZITADEL_EXTERNALSECURE=false
+
+      # [NOWE] - Gwarantuje utworzenie konta admina przy czystym starcie bazy
+      - ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME=zitadel-admin
+      - ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD=Password123!
     ports:
       - "8081:8080"
     networks:

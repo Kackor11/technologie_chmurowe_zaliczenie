@@ -1,9 +1,22 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
+import { AuthProvider } from "react-oidc-context";
+
+const oidcConfig = {
+    authority: "http://localhost:8081",
+    client_id: "377891374571257861",
+    redirect_uri: "http://localhost/", // Musi być identyczne z tym w Zitadel
+    post_logout_redirect_uri: "http://localhost/",
+    response_type: "code", // To wymusza standard PKCE
+    // Pobieramy openid, profil i wymuszamy dołączenie ról projektowych
+    scope: "openid profile email urn:zitadel:iam:org:project:roles"
+};
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <App />
+        <AuthProvider {...oidcConfig}>
+            <App />
+        </AuthProvider>
     </React.StrictMode>,
 )
